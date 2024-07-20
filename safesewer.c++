@@ -3,7 +3,11 @@
 #include <Adafruit_SSD1306.h>
 #include "dht.h"
 
-#define sensor A1
+#define sensor A0
+const int mq7Pin = A1;  
+const int mq4Pin = A2;  
+const int mq136Pin = A3;
+
 #define Highpulse 90
 
 #define SCREEN_WIDTH 128
@@ -23,12 +27,14 @@ void setup() {
 }
 
 void loop() {
+  int mq7Value = analogRead(mq7Pin);
+  int mq4Value = analogRead(mq4Pin);
+  int mq136Value = analogRead(mq136Pin);
   unsigned long currentTime = millis();
 
-  // Display temperature for 5 seconds
   if (displayTemperature && (currentTime - lastTemperatureTime >= 5000)) {
     display.clearDisplay();
-    DHT.read11(A0); // Read temperature and humidity
+    DHT.read11(A0); 
     display.setTextSize(1);
     display.setTextColor(WHITE);
     display.setCursor(0, 10);
@@ -43,16 +49,20 @@ void loop() {
     lastTemperatureTime = currentTime;
     displayTemperature = false;
     
-    // Print temperature and humidity to serial monitor
     Serial.print("Temperature: ");
     Serial.print(DHT.temperature);
     Serial.println("C");
     Serial.print("Humidity: ");
     Serial.print(DHT.humidity);
     Serial.println("%");
+    Serial.print("MQ-7 Value: ");
+    Serial.print(mq7Value);
+    Serial.print(" | MQ-4 Value: ");
+    Serial.print(mq4Value);
+    Serial.print(" | MQ-136 Value: ");
+    Serial.println(mq136Value);
   }
 
-  // Display pulse for 10 seconds
   if (!displayTemperature && (currentTime - lastPulseTime >= 7000)) {
     display.clearDisplay();
     int Svalue = analogRead(sensor);
@@ -67,7 +77,6 @@ void loop() {
     lastPulseTime = currentTime;
     displayTemperature = true;
 
-    // Print pulse value to serial monitor
     Serial.print("Pulse: ");
     Serial.println(value);
   }
